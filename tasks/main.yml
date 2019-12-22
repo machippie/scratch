@@ -1,0 +1,50 @@
+# Standards: 0.1
+---
+- name: Fact scratch user
+  set_fact:
+    scratch_user: "{{ scratch_user | default(homebrew_user) | default(ansible_user_id) }}"
+  tags:
+    - scratch
+
+- name: Install psutil package
+  pip:
+    name: psutil
+  tags:
+    - scratch
+
+- become: "{{ (scratch_user != ansible_user_id) | bool }}"
+  become_user: "{{ scratch_user }}"
+  block:
+    - name: Install required package
+      ignore_errors: True
+      homebrew_cask:
+        name: scratch
+        greedy: True
+        options: appdir=/Applications
+        accept_external_apps: False
+        state: upgraded
+      tags:
+        - scratch
+
+    - name: Remove quarantine flag
+      register: scratch_quarantine
+      failed_when: scratch_quarantine.rc != 0 and "No such xattr" not in scratch_quarantine.stderr
+      changed_when: scratch_quarantine.rc == 0
+      command: xattr -d com.apple.quarantine /Applications/Scratch Desktop.app
+      tags:
+        - scratch
+
+    - name: Check program running
+      register: scratch_running
+      pids:
+        name: Scratch Desktop
+      tags:
+        - scratch
+
+    - name: Fact program running
+      set_fact:
+        scratch_started: "{{ scratch_running.pids | length > 0 }}}"
+      tags:
+        - scratch
+
+...

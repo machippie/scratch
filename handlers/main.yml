@@ -1,0 +1,16 @@
+# Standards: 0.1
+---
+- name: Kill scratch
+  command: killall Scratch\ Desktop
+  register: scratch_kill
+  failed_when: scratch_kill.rc != 0 and "No matching processes belonging to you were found" not in scratch_kill.stderr
+  become: "{{ (scratch_user != ansible_user_id) | bool }}"
+  become_user: "{{ scratch_user }}"
+
+- name: Start scratch
+  when: scratch_started
+  command: open -g /Applications/Scratch\ Desktop.app
+  become: "{{ (scratch_user != ansible_user_id) | bool }}"
+  become_user: "{{ scratch_user }}"
+
+...
