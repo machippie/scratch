@@ -30,7 +30,7 @@
       register: scratch_quarantine
       failed_when: scratch_quarantine.rc != 0 and "No such xattr" not in scratch_quarantine.stderr
       changed_when: scratch_quarantine.rc == 0
-      command: xattr -d com.apple.quarantine /Applications/Scratch Desktop.app
+      command: xattr -d com.apple.quarantine /Applications/Scratch\ Desktop.app
       tags:
         - scratch
 
