@@ -1,0 +1,10 @@
+# Standards: 0.1
+---
+# @var scratch_user:description: User to run user-specific commands
+# @var scratch_user:value: scratch_user | default(homebrew_user) | default(ansible_user_id)
+# scratch_user:
+
+# @var scratch_started:description: Start in background after install
+scratch_started: True
+
+...
