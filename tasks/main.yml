@@ -6,12 +6,6 @@
   tags:
     - scratch
 
-- name: Install psutil package
-  pip:
-    name: psutil
-  tags:
-    - scratch
-
 - become: "{{ (scratch_user != ansible_user_id) | bool }}"
   become_user: "{{ scratch_user }}"
   block:
@@ -34,16 +28,24 @@
       tags:
         - scratch
 
+    - name: Install pidof package
+      homebrew:
+        name: pidof
+      tags:
+        - scratch
+
     - name: Check program running
       register: scratch_running
-      pids:
-        name: Scratch Desktop
+      check_mode: False
+      failed_when: False
+      changed_when: scratch_running.stdout | length > 0 | bool
+      command: pidof Scratch
       tags:
         - scratch
 
     - name: Fact program running
       set_fact:
-        scratch_started: "{{ scratch_running.pids | length > 0 }}}"
+        scratch_started: "{{ scratch_running.stdout_lines | length > 0 | bool }}"
       tags:
         - scratch
 
